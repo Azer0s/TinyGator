@@ -13,6 +13,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 2.2.108
-    - name: Build with dotnet
+    - name: Build Aggregator
       run: dotnet build --configuration Release
-      working-directory: src/
+      working-directory: src/MetricAggregator
+    - name: Build Collector
+      run: dotnet build --configuration Release
+      working-directory: src/MetricCollector
