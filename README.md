@@ -1,11 +1,11 @@
 <img src="assets/TinyGator.png" alt="logo" width="200" align="left"/>
 
-# TinyGator
+## TinyGator
 ![License](https://img.shields.io/github/license/Azer0s/TinyGator)
 
 A tiny, Kafka based, data aggregator for storing JSON metrics in timescaledb
 
-## Configure the aggregator
+### Configure the aggregator
 
 * `KAFKA_BOOTSTRAP_SERVER` - The Kafka bootstrap server to connect to
 * `KAFKA_TOPIC` - The Kafka topic to push the data to
@@ -14,7 +14,7 @@ A tiny, Kafka based, data aggregator for storing JSON metrics in timescaledb
 * `METRIC_INTERVAL` - The interval the endpoint is accessed in (in ms)
 * `METRIC_HEADERS` - The headers to use when accessing the endpoint
 
-### Example:
+#### Example:
 
 ```bash
 KAFKA_BOOTSTRAP_SERVER=localhost:9092
@@ -25,7 +25,7 @@ METRIC_INTERVAL=5000
 METRIC_HEADERS={"authorization":"Basic Z3Vlc3Q6Z3Vlc3Q="}
 ```
 
-## Configure the collector
+### Configure the collector
 
 * `KAFKA_BOOTSTRAP_SERVER` - The Kafka bootstrap server to connect to
 * `KAFKA_TOPIC` - The Kafka topic to pull the data from
@@ -35,7 +35,7 @@ METRIC_HEADERS={"authorization":"Basic Z3Vlc3Q6Z3Vlc3Q="}
 * `POSTGRESQL_INSERT_STATEMENT` - The PostgreSQL insert statement
 * `ADD_TIMESTAMP` - The field to add the timestamp to (leave empty if your data already contains a timestamp)
 
-### Example
+#### Example
 
 ```bash
 KAFKA_BOOTSTRAP_SERVER=localhost:9092
