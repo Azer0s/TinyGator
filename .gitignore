@@ -484,3 +484,5 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 
 # End of https://www.gitignore.io/api/rider,csharp,intellij
+
+.DS_Store
