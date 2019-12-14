@@ -1,3 +1,5 @@
+<img src="assets/TinyGator.png" alt="logo" width="200" align="left"/>
+
 # TinyGator
 A tiny data aggregator for storing JSON metrics in timescaledb
 
