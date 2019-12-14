@@ -1,6 +1,8 @@
 <img src="assets/TinyGator.png" alt="logo" width="200" align="left"/>
 
 # TinyGator
+![License](https://img.shields.io/github/license/Azer0s/TinyGator)
+
 A tiny, Kafka based, data aggregator for storing JSON metrics in timescaledb
 
 ## Configure the aggregator
