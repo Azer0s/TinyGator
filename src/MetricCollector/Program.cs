@@ -34,7 +34,7 @@ namespace MetricCollector
             {
                 var value = Environment.GetEnvironmentVariable(env);
 
-                if (value == null)
+                if (string.IsNullOrEmpty(value))
                 {
                     throw new Exception($"Expected {info} in ENV {env}!");
                 }
@@ -100,6 +100,8 @@ namespace MetricCollector
                                 cmd.Parameters.AddWithValue(entry.Key, NpgsqlDbType.Varchar,
                                     JsonPointer.JsonPointer.Get<string>(value, entry.Value.Pointer));
                                 break;
+                            default:
+                                throw new Exception($"Unrecognized datatype: {entry.Value.Type}");
                         }
                     }
 

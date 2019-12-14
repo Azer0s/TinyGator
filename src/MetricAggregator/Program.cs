@@ -28,7 +28,7 @@ namespace MetricAggregator
             {
                 var value = Environment.GetEnvironmentVariable(env);
 
-                if (value == null)
+                if (string.IsNullOrEmpty(value))
                 {
                     throw new Exception($"Expected {info} in ENV {env}!");
                 }
@@ -49,6 +49,19 @@ namespace MetricAggregator
             var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
             
             var client = new HttpClient();
+            
+            //Manual switch since Enum.parse sometimes returns a default value when it really shouldn't
+            var method = metricMethod switch
+            {
+                "GET" => HttpMethod.Get,
+                "PUT" => HttpMethod.Put,
+                "POST" => HttpMethod.Post,
+                "DELETE" => HttpMethod.Delete,
+                "PATCH" => HttpMethod.Patch,
+                "OPTIONS" => HttpMethod.Options,
+                "HEAD" => HttpMethod.Head,
+                _ => throw new Exception($"Invalid HTTP method {metricMethod}")
+            };
 
             #endregion
 
@@ -59,19 +72,7 @@ namespace MetricAggregator
                 var request = new HttpRequestMessage
                 {
                     RequestUri = new Uri(metricEndpoint),
-                
-                    //Manual switch since Enum.parse sometimes returns a default value when it really shouldn't
-                    Method = metricMethod switch
-                    {
-                        "GET" => HttpMethod.Get,
-                        "PUT" => HttpMethod.Put,
-                        "POST" => HttpMethod.Post,
-                        "DELETE" => HttpMethod.Delete,
-                        "PATCH" => HttpMethod.Patch,
-                        "OPTIONS" => HttpMethod.Options,
-                        "HEAD" => HttpMethod.Head,
-                        _ => throw new Exception($"Invalid HTTP method {metricMethod}")
-                    },
+                    Method = method,
                 };
             
                 JsonConvert.DeserializeObject<Dictionary<string, string>>(metricHeader).ToList().ForEach(entry =>
