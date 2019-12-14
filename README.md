@@ -1,5 +1,5 @@
 # TinyGator
-A tiny data aggregator for storing JSON metrics in timescaledb
+A tiny, Kafka based, data aggregator for storing JSON metrics in timescaledb
 
 ## Configure the aggregator
 
