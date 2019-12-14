@@ -10,6 +10,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Build the Docker image
+    - name: Build the Aggregator Docker image
       working-directory: src/MetricAggregator
       run: docker build . -t tinygator.aggregator:$(date +%s)
+    - name: Build the Collector Docker image
+      working-directory: src/MetricCollector
+      run: docker build . -t tinygator.collector:$(date +%s)
