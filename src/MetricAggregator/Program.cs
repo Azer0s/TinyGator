@@ -17,6 +17,7 @@ namespace MetricAggregator
         {
             const string KAFKA_BOOTSTRAP_SERVER = "KAFKA_BOOTSTRAP_SERVER";
             const string KAFKA_TOPIC = "KAFKA_TOPIC";
+            const string KAFKA_CONNECT_TIMEOUT = "KAFKA_CONNECT_TIMEOUT";
             const string METRIC_ENDPOINT = "METRIC_ENDPOINT";
             const string METRIC_METHOD = "METRIC_METHOD";
             const string METRIC_INTERVAL = "METRIC_INTERVAL";
@@ -38,6 +39,8 @@ namespace MetricAggregator
 
             var server = GetEnvironmentOrThrow(KAFKA_BOOTSTRAP_SERVER, "a Kafka bootstrap server connection string");
             var topic = GetEnvironmentOrThrow(KAFKA_TOPIC, "a Kafka topic");
+            var connectTimeout =
+                int.Parse(GetEnvironmentOrThrow(KAFKA_CONNECT_TIMEOUT, "the Kafka connect timeout in ms"));
             var metricEndpoint = GetEnvironmentOrThrow(METRIC_ENDPOINT, "a metric endpoint URL");
             var metricMethod = GetEnvironmentOrThrow(METRIC_METHOD, "a HTTP method").ToUpper();
             var metricInterval = int.Parse(GetEnvironmentOrThrow(METRIC_INTERVAL, "an interval in ms"));
@@ -49,24 +52,11 @@ namespace MetricAggregator
             #region Try to connect to Kafka
             
             var adminClientConfig = new AdminClientConfig {BootstrapServers = server};
-            var adminClient = new AdminClientBuilder(adminClientConfig).Build();
-
-            Metadata metadata = null;
-
-            while (metadata == null)
+            using (var adminClient = new AdminClientBuilder(adminClientConfig).Build())
             {
-                try
-                {
-                    metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(1));
-                }
-                catch (Exception)
-                {
-                    adminClientConfig = new AdminClientConfig {BootstrapServers = server};
-                    adminClient = new AdminClientBuilder(adminClientConfig).Build();
-                }
+                if(adminClient.GetMetadata(TimeSpan.FromMilliseconds(connectTimeout)) == null)
+                    throw new Exception("Couldn't establish connection with Kafka!");
             }
-            
-            Console.WriteLine($"Connected to Kafka broker {metadata.OriginatingBrokerName}!");
 
             #endregion
 

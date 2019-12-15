@@ -25,6 +25,7 @@ namespace MetricCollector
             const string KAFKA_BOOTSTRAP_SERVER = "KAFKA_BOOTSTRAP_SERVER";
             const string KAFKA_TOPIC = "KAFKA_TOPIC";
             const string KAFKA_GROUP_ID = "KAFKA_GROUP_ID";
+            const string KAFKA_CONNECT_TIMEOUT = "KAFKA_CONNECT_TIMEOUT";
             const string JSON_POINTER_EXTRACTORS = "JSON_POINTER_EXTRACTORS";
             const string POSTGRESQL_CONNECTION_STRING = "POSTGRESQL_CONNECTION_STRING";
             const string POSTGRESQL_INSERT_STATEMENT = "POSTGRESQL_INSERT_STATEMENT";
@@ -47,6 +48,8 @@ namespace MetricCollector
             var server = GetEnvironmentOrThrow(KAFKA_BOOTSTRAP_SERVER, "a Kafka bootstrap server connection string");
             var topic = GetEnvironmentOrThrow(KAFKA_TOPIC, "a Kafka topic");
             var groupId = GetEnvironmentOrThrow(KAFKA_GROUP_ID, "a Kafka group id");
+            var connectTimeout =
+                int.Parse(GetEnvironmentOrThrow(KAFKA_CONNECT_TIMEOUT, "the Kafka connect timeout in ms"));
             var pointerExtractors = JsonConvert.DeserializeObject<Dictionary<string, PointerData>>(
                 GetEnvironmentOrThrow(JSON_POINTER_EXTRACTORS, "JSON pointer extractors as JSON map"));
             var postgresqlConnectionString =
@@ -66,24 +69,11 @@ namespace MetricCollector
             #region Try to connect to Kafka
               
             var adminClientConfig = new AdminClientConfig {BootstrapServers = server};
-            var adminClient = new AdminClientBuilder(adminClientConfig).Build();
-            
-            Metadata metadata = null;
-
-            while (metadata == null)
+            using (var adminClient = new AdminClientBuilder(adminClientConfig).Build())
             {
-                try
-                {
-                    metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(1));
-                }
-                catch (Exception)
-                {
-                    adminClientConfig = new AdminClientConfig {BootstrapServers = server};
-                    adminClient = new AdminClientBuilder(adminClientConfig).Build();
-                }
+                if(adminClient.GetMetadata(TimeSpan.FromMilliseconds(connectTimeout)) == null)
+                    throw new Exception("Couldn't establish connection with Kafka!");
             }
-                        
-            Console.WriteLine($"Connected to Kafka broker {metadata.OriginatingBrokerName}!");
             
             #endregion
 
