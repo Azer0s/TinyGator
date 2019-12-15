@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
@@ -15,7 +13,7 @@ namespace MetricAggregator
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             const string KAFKA_BOOTSTRAP_SERVER = "KAFKA_BOOTSTRAP_SERVER";
             const string KAFKA_TOPIC = "KAFKA_TOPIC";
@@ -48,6 +46,30 @@ namespace MetricAggregator
             var producerConfig = new ProducerConfig {BootstrapServers = server};
             var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
             
+            #region Try to connect to Kafka
+            
+            var adminClientConfig = new AdminClientConfig {BootstrapServers = server};
+            var adminClient = new AdminClientBuilder(adminClientConfig).Build();
+
+            Metadata metadata = null;
+
+            while (metadata == null)
+            {
+                try
+                {
+                    metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(1));
+                }
+                catch (Exception)
+                {
+                    adminClientConfig = new AdminClientConfig {BootstrapServers = server};
+                    adminClient = new AdminClientBuilder(adminClientConfig).Build();
+                }
+            }
+            
+            Console.WriteLine($"Connected to Kafka broker {metadata.OriginatingBrokerName}!");
+
+            #endregion
+
             var client = new HttpClient();
             
             //Manual switch since Enum.parse sometimes returns a default value when it really shouldn't
@@ -63,6 +85,8 @@ namespace MetricAggregator
                 _ => throw new Exception($"Invalid HTTP method {metricMethod}")
             };
 
+            var headers = JsonConvert.DeserializeObject<Dictionary<string, string>>(metricHeader).ToList();
+
             #endregion
 
             #region Data load
@@ -75,7 +99,7 @@ namespace MetricAggregator
                     Method = method,
                 };
             
-                JsonConvert.DeserializeObject<Dictionary<string, string>>(metricHeader).ToList().ForEach(entry =>
+                headers.ForEach(entry =>
                 {
                     request.Headers.Add(entry.Key, entry.Value);
                 });

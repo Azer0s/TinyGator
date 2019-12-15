@@ -20,7 +20,7 @@ namespace MetricCollector
     }
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             const string KAFKA_BOOTSTRAP_SERVER = "KAFKA_BOOTSTRAP_SERVER";
             const string KAFKA_TOPIC = "KAFKA_TOPIC";
@@ -62,6 +62,30 @@ namespace MetricCollector
             
             var consumerConfig = new ConsumerConfig{BootstrapServers = server, GroupId = groupId};
             var consumer = new ConsumerBuilder<Ignore, string>(consumerConfig).Build();
+            
+            #region Try to connect to Kafka
+              
+            var adminClientConfig = new AdminClientConfig {BootstrapServers = server};
+            var adminClient = new AdminClientBuilder(adminClientConfig).Build();
+            
+            Metadata metadata = null;
+
+            while (metadata == null)
+            {
+                try
+                {
+                    metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(1));
+                }
+                catch (Exception)
+                {
+                    adminClientConfig = new AdminClientConfig {BootstrapServers = server};
+                    adminClient = new AdminClientBuilder(adminClientConfig).Build();
+                }
+            }
+                        
+            Console.WriteLine($"Connected to Kafka broker {metadata.OriginatingBrokerName}!");
+            
+            #endregion
 
             consumer.Subscribe(topic);
 
