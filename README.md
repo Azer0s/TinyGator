@@ -2,8 +2,8 @@
 
 ## TinyGator
 ![License](https://img.shields.io/github/license/Azer0s/TinyGator)
-[![Aggregator](https://img.shields.io/badge/dockerhub-Aggregator-blue)](https://hub.docker.com/r/azer0s/tinygator.aggregator)
-![Dockerhub Collector](https://img.shields.io/badge/dockerhub-Collector-blue)
+[![Dockerhub Aggregator](https://img.shields.io/badge/dockerhub-Aggregator-blue)](https://hub.docker.com/r/azer0s/tinygator.aggregator)
+[![Dockerhub Collector](https://img.shields.io/badge/dockerhub-Collector-blue)](https://hub.docker.com/r/azer0s/tinygator.collector)
 
 A tiny, Kafka based, data aggregator for storing JSON metrics in timescaledb
 
